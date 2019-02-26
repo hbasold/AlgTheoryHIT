@@ -3,6 +3,12 @@
 module Main where
 \end{code}
 
+A copy of the file that Martín Escardó uses to manage universe polymorphism
+in a more readable way.
+\begin{code}
+open import Universes
+\end{code}
+
 This module defines signatures and terms.
 \begin{code}
 open import Terms
