@@ -117,7 +117,7 @@ needs induction on lists.
     where
       unique : {𝓑 : Algebra T} (H : Homomorphism FreeAlg 𝓑) →
                Homomorphism.map H ∼ FreeAlgebra-iter 𝓑
-      unique {𝓑} H = FreeAlgebra-ind (ind-hyp PE P-is-prop)
+      unique {𝓑} H = FreeAlgebra-ind (ind-hyp PE ind-resp-eq)
         where
           open AlgTheory T
           open Homomorphism H renaming (map to h)
@@ -125,7 +125,7 @@ needs induction on lists.
             renaming (carrier to B; algebra to b; resp-eq to b-resp-eq;
               carrier-set to B-is-set)
           open Algebra (FreeAlg {T = T})
-            renaming (carrier to T*; algebra to ω)
+            renaming (carrier to T*; algebra to ω; algebra* to ω*)
 
           b* : T* → B
           b* = FreeAlgebra-iter 𝓑
@@ -144,6 +144,15 @@ needs induction on lists.
 
           PE = pre-ind P ind
 
+          open PreInductive PE
+
           P-is-prop : ∀ x → is-prop (P x)
-          P-is-prop x = has-level-apply B-is-set (h x) (FreeAlgebra-iter 𝓑 x)
+          P-is-prop x = has-level-apply B-is-set (h x) (b* x)
+
+          ind-resp-eq : ∀{t u} (r : eqs t u)
+            → (pt : TermP sig P t) (pu : TermP sig P u)
+            → ind* pt == ind* pu [ P ↓ resp-eq r ]
+          ind-resp-eq {t} {u} t=u pt pu =
+            prop-has-all-paths-↓ {{ P-is-prop (ω* u) }}
+
 \end{code}

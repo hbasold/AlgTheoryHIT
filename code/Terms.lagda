@@ -53,4 +53,21 @@ Term-map f = Term-rec (var ∘ f) node
 Term-lift : ∀ {𝓤 𝓥 𝓦 𝓦'} {Σ : Signature 𝓤 𝓥} {V : 𝓦 ̇} (P : V → 𝓦' ̇) → Term Σ V → 𝓥 ⊔ 𝓦' ̇
 Term-lift {_} {𝓥} {Σ = Σ} P
   = Term-rec (λ x → _↑ {_} {𝓥} (P x)) (λ s α → ∀ (k : ar Σ s) → α k)
+
+data TermP {𝓤 𝓥 𝓦 𝓣} (Σ : Signature 𝓤 𝓥) {X : 𝓦 ̇} (P : X → 𝓣 ̇) :
+     Term Σ X → (𝓤 ⊔ 𝓥 ⊔ 𝓦 ⊔ 𝓣) ⁺ ̇ where
+  var-case   : {x : X} → P x                                                  → TermP Σ P (var x)
+  node-case  : (s : sym Σ) (α : ar Σ s → Term Σ X) → (∀ x → TermP Σ P (α x))  → TermP Σ P (node s α)
+
+module TermPRec {𝓤 𝓥 𝓦} {Σ : Signature 𝓤 𝓥} {X : 𝓦 ̇} {𝓣 𝓣'} {P : X → 𝓣 ̇} {U : Term Σ X → 𝓣' ̇}
+  (var-case*   : ∀ {x} → P x → U (var x))
+  (node-case*  : ∀ s α → (∀ x → U (α x)) → U (node s α))
+  where
+
+  f : ∀ {t : Term Σ X} → TermP Σ P t → U t
+  f (var-case px) = var-case* px
+  f (node-case s α p) = node-case* s α λ x → f (p x)
+
+TermP-rec = TermPRec.f
+
 \end{code}

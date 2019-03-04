@@ -131,14 +131,24 @@ predicate the preservation of the identities of an algebraic theory.
       predicate  : A → 𝓣 ̇
       ind    : (s : |Σ|) (α : ar Σ s → A) → IndHyp 𝓐 predicate s α → predicate (a s α)
 
+    predicate* : Term Σ A → 𝓣 ̇
+    predicate* = predicate ∘ algebra*
+
+    ind* : ∀ {t : Term Σ A} → TermP Σ predicate t → predicate* t
+    ind* = TermP-rec (idf _) λ s α γ → ind s (algebra* ∘ α) γ
+
   record InductiveProp  (𝓐 : Algebra) (𝓣) : (𝓤 ⊔ 𝓥 ⊔ 𝓦 ⊔ 𝓣) ⁺ ̇ where
     constructor ind-hyp
     open Algebra 𝓐 renaming (carrier to X; algebra to a)
     field
       pre-inductive : PreInductive pre-algebra 𝓣
     open PreInductive pre-inductive public
+    -- field
+    --   predicate-prop : ∀ x → is-prop (predicate x)
     field
-      predicate-prop : ∀ x → is-prop (predicate x)
+      ind-resp-eq : ∀{t u} (r : eqs t u)
+        → (pt : TermP Σ predicate t) (pu : TermP Σ predicate u)
+        → ind* pt == ind* pu [ predicate ↓ resp-eq r ]
 \end{code}
 
 
@@ -181,11 +191,11 @@ Open algebras may also come with an induction principle.
     open PreInductive pre-inductive public
     open IsOpenPreAlgebra is-open
 
-    predicate* : Term Σ X → 𝓣 ̇
-    predicate* = predicate ∘ algebra* ∘ Term-map inj
+    -- predicate* : Term Σ X → 𝓣 ̇
+    -- predicate* = predicate ∘ algebra* ∘ Term-map inj
 
-    ind* : (∀ x → predicate (inj x)) → ∀ (t : Term Σ X) → predicate* t
-    ind* p = Term-elim p λ s α → ind s (algebra* ∘ Term-map inj ∘ α)
+    -- ind* : (∀ x → predicate (inj x)) → ∀ (t : Term Σ X) → predicate* t
+    -- ind* p = Term-elim p λ s α → ind s (algebra* ∘ Term-map inj ∘ α)
 
   record OpenInductiveProp  (𝓐 : Algebra) (𝓣) (X : 𝓦 ̇) : (𝓤 ⊔ 𝓥 ⊔ 𝓦 ⊔ 𝓣) ⁺ ̇ where
     constructor ind-hyp
