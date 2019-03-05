@@ -17,9 +17,9 @@ open import AlgebraicTheories
 \begin{code}
 module _ where
   postulate -- HIT type
-    FreeAlgebra : ∀ {𝓤} (T : AlgTheory 𝓤₀ 𝓤₀ 𝓤) → 𝓤 ̇
+    FreeAlgebra : ∀ {𝓤 𝓥 𝓦} (T : AlgTheory 𝓤 𝓥 𝓦) → 𝓦 ̇
 
-  module _ {𝓤} {T : AlgTheory 𝓤₀ 𝓤₀ 𝓤} where
+  module _{𝓤 𝓥 𝓦} {T : AlgTheory 𝓤 𝓥 𝓦} where
     open AlgTheory T renaming (sig to Σ)
 
     postulate -- HIT 0-constructor
@@ -51,7 +51,7 @@ module _ where
 First, we establish the iteration scheme for free algebras.
 This allows the construction of a map into any other T-algebras.
 \begin{code}
-  module FreeAlgebraIter {𝓤} {T : AlgTheory 𝓤₀ 𝓤₀ 𝓤} (𝓐 : Algebra T) where
+  module FreeAlgebraIter {𝓤 𝓥 𝓦} {T : AlgTheory 𝓤 𝓥 𝓦} (𝓐 : Algebra T) where
     open Algebra 𝓐 renaming (carrier to A; algebra to a)
 
     postulate -- HIT computation and β for 0-constructor
@@ -67,7 +67,7 @@ We do not define a general elimination schemes, but restrict it
 to induction, that is, we can only prove propositions but cannot eliminate
 free algebras into arbitrary sets.
 \begin{code}
-  module FreeAlgebraInd {𝓤} {T : AlgTheory 𝓤₀ 𝓤₀ 𝓤} {𝓥} (Ind : InductiveProp T FreeAlg 𝓥)  where
+  module FreeAlgebraInd {𝓤 𝓥 𝓦} {T : AlgTheory 𝓤 𝓥 𝓦} {𝓣} (Ind : InductiveProp T FreeAlg 𝓣) where
     open InductiveProp Ind renaming (predicate to P)
 
     postulate -- HIT induction
@@ -84,7 +84,7 @@ We prove now that FreeAlgebra is indeed free.
 For this the above induction scheme suffices, as the iteration requires an
 algebra to be a set.
 \begin{code}
-module _ {𝓤} {T : AlgTheory 𝓤₀ 𝓤₀ 𝓤} where
+module _ {𝓤 𝓥 𝓦} {T : AlgTheory 𝓤 𝓥 𝓦} where
 \end{code}
 
 First, we construct the homomorphism by iteration.
