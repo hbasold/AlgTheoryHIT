@@ -130,7 +130,7 @@ This type comes with the obvious iteration principle that we denote by
 \AgdaFunction{Term-iter}.
 An \emph{algebraic theory} is given by a signature and a set of equations
 between terms over that signature.
-These equations may have free variables by may not use other properties than
+These equations may have free variables but may not use other properties than
 equality on the variables.
 Thus, we represent equations as parametric
 relations~\cite{Hermida14:LogicalRelationsParametricity}, as in the following
@@ -322,9 +322,10 @@ the theory.
 
 One can then also define an induction scheme for algebras of an algebraic
 theory, cf.~\cite{HermidaJacobs97:IndCoindFib}.
-With all the basic definitions in place, construct the initial algebra of
-an algebraic theory as higher inductive type as follows, where
-\AgdaFunction{node*} \ofT
+With the basic definitions in place, we construct the initial algebra of
+an algebraic theory as higher inductive type with the following
+(type) constructors, where the function
+\AgdaFunction{node*} of type
 \Term{\sig}{\AgdaSymbol{(}\FreeAlg{\AgdaBound{T}\AgdaSymbol{)}}}
 \toA \FreeAlg{\AgdaBound{T}}
 is the extension of \AgdaFunction{node} to terms,
@@ -431,14 +432,16 @@ Details and examples can be found here:
 \url{https://perso.ens-lyon.fr/henning.basold/code/AlgTheoryHIT}.
 
 Why would we be interested in such a construction of free algebras?
-First of all, we wish to formalise parts of universal algebras, like free and
-quotient algebras, and higher inductive types seem the way to go.
+First of all, we wish to formalise parts of universal algebras, like free
+algebras and quotient algebras.
+Higher inductive types seem to provide the appropriate mechanism for such
+an endeavour.
 Moreover, once we can construct free algebras, we can also consider inductive
-and coinductive types over those free algebras as extension of strictly
+and coinductive types over those free algebras as an extension of strictly
 positive types.
 In particular, semantics of finitely branching transition systems could be
 obtained in the final coalgebra for the finite powerset functor, which is
-the free join-semilattice.
+the free join-semilattice and therefore representable in our framework.
 Finally, we aim to extend the construction to HITs that are not just sets, but
 groupoids.
 This would enable us to, for example, construct free symmetric monoidal
