@@ -7,7 +7,8 @@ or rather a 1-truncated HIT or quotient inductive type (QIT).
 module FreeAlgebra where
 
 open import Universes
-open import lib.Basics renaming (_⊔_ to +)
+open import lib.Basics renaming (_⊔_ to _⊎_) hiding (Σ)
+import lib.Basics as B
 open import lib.NType2
 open import Terms
 open import AlgebraicTheories
@@ -19,18 +20,20 @@ module _ where
     FreeAlgebra : ∀ {𝓤} (T : AlgTheory 𝓤₀ 𝓤₀ 𝓤) → 𝓤 ̇
 
   module _ {𝓤} {T : AlgTheory 𝓤₀ 𝓤₀ 𝓤} where
-    open AlgTheory T
+    open AlgTheory T renaming (sig to Σ)
 
     postulate -- HIT 0-constructor
-      node'  : (s : sym sig) (α : ar sig s → FreeAlgebra T) → FreeAlgebra T
+      node'  : (s : sym Σ) (α : ar Σ s → FreeAlgebra T) → FreeAlgebra T
+\end{code}
 
+\begin{code}
     FreePreAlgebra : PreAlgebra T
     FreePreAlgebra = record
-      { carrier      = FreeAlgebra T
+      { carrier  = FreeAlgebra T
       ; algebra  = node'
       }
 
-    algebra* : Term sig (FreeAlgebra T) → FreeAlgebra T
+    algebra* : Term Σ (FreeAlgebra T) → FreeAlgebra T
     algebra* = PreAlgebra.algebra* FreePreAlgebra
 
     postulate -- HIT 1 and 2-constructors
@@ -48,14 +51,12 @@ module _ where
 First, we establish the iteration scheme for free algebras.
 This allows the construction of a map into any other T-algebras.
 \begin{code}
-  module FreeAlgebraIter {𝓤} {T : AlgTheory 𝓤₀ 𝓤₀ 𝓤} (A : Algebra T) where
-    open AlgTheory T
-    open Algebra A
-      renaming (carrier to X; algebra to β)
+  module FreeAlgebraIter {𝓤} {T : AlgTheory 𝓤₀ 𝓤₀ 𝓤} (𝓐 : Algebra T) where
+    open Algebra 𝓐 renaming (carrier to A; algebra to a)
 
     postulate -- HIT computation and β for 0-constructor
-      f : FreeAlgebra T → X
-      node-β : ∀ s α → f (node' s α) ↦ β s (f ∘ α)
+      f : FreeAlgebra T → A
+      node-β : ∀ s α → f (node' s α) ↦ a s (f ∘ α)
     {-# REWRITE node-β #-}
 
   FreeAlgebra-iter = FreeAlgebraIter.f
@@ -67,7 +68,6 @@ to induction, that is, we can only prove propositions but cannot eliminate
 free algebras into arbitrary sets.
 \begin{code}
   module FreeAlgebraInd {𝓤} {T : AlgTheory 𝓤₀ 𝓤₀ 𝓤} {𝓥} (Ind : InductiveProp T FreeAlg 𝓥)  where
-    open AlgTheory T
     open InductiveProp Ind renaming (predicate to P)
 
     postulate -- HIT induction
@@ -95,11 +95,11 @@ First, we construct the homomorphism by iteration.
     ; resp-ops = resp
     }
     where
-      open AlgTheory T
+      open AlgTheory T renaming (sig to Σ)
       open Algebra 𝓐 renaming (carrier to A; algebra to a)
       open Algebra (FreeAlg {T = T}) renaming (carrier to Ω; algebra to ω)
 
-      resp : (s : sym sig) (α : ar sig s → Ω) →
+      resp : (s : sym Σ) (α : ar Σ s → Ω) →
              FreeAlgebra-iter 𝓐 (ω s α) == a s (FreeAlgebra-iter 𝓐 ∘ α)
       resp s α = idp
 \end{code}
@@ -119,7 +119,7 @@ needs induction on lists.
                Homomorphism.map H ∼ FreeAlgebra-iter 𝓑
       unique {𝓑} H = FreeAlgebra-ind (ind-hyp PE ind-resp-eq)
         where
-          open AlgTheory T
+          open AlgTheory T renaming (sig to Σ)
           open Homomorphism H renaming (map to h)
           open Algebra 𝓑
             renaming (carrier to B; algebra to b; resp-eq to b-resp-eq;
@@ -132,9 +132,9 @@ needs induction on lists.
 
           P = λ x → h x == b* x
 
-          ind : (s : sym sig)
-                (α : ar sig s → T*) →
-                ((x : ar sig s) → h (α x) == FreeAlgebra-iter 𝓑 (α x)) →
+          ind : (s : sym Σ)
+                (α : ar Σ s → T*) →
+                ((x : ar Σ s) → h (α x) == FreeAlgebra-iter 𝓑 (α x)) →
                 h (ω s α) == FreeAlgebra-iter 𝓑 (ω s α)
           ind s α P =
             h (ω s α)                    =⟨ idp ⟩
@@ -150,7 +150,7 @@ needs induction on lists.
           P-is-prop x = has-level-apply B-is-set (h x) (b* x)
 
           ind-resp-eq : ∀{t u} (r : eqs t u)
-            → (pt : TermP sig P t) (pu : TermP sig P u)
+            → (pt : TermP Σ P t) (pu : TermP Σ P u)
             → ind* pt == ind* pu [ P ↓ resp-eq r ]
           ind-resp-eq {t} {u} t=u pt pu =
             prop-has-all-paths-↓ {{ P-is-prop (ω* u) }}

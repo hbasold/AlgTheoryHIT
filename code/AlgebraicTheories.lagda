@@ -26,7 +26,7 @@ and AlgTheory would be in the total universe Uω.
 record AlgTheory (𝓤 𝓥 𝓦) : (𝓤 ⊔ 𝓥 ⊔ 𝓦) ⁺ ̇ where
   field
     sig  : Signature 𝓤 𝓥
-    eqs  : ∀ {X : 𝓦 ̇} → Rel (Term sig X) lzero
+    eqs  : ∀ {X : 𝓦 ̇} → Rel (Term sig X) 𝓤₀
     -- The following is an internalisation of parametricity. However, we
     -- don't need it for now.
     -- eqs-nat : ∀ {𝓦 𝓦'} {X : 𝓦 ̇} {Y : 𝓦' ̇} (f : X → Y) →
@@ -87,7 +87,7 @@ equations can involve complex terms, cf. AlgTheory.
       algebra  : (s : |Σ|) (α : ar Σ s → carrier) → carrier
 
     algebra* : Term Σ carrier → carrier
-    algebra* = Term-rec (λ x → x) algebra
+    algebra* = Term-iter (λ x → x) algebra
 
 \end{code}
 
@@ -161,13 +161,13 @@ These are algebras that additionally have an injection X → A.
       inj : X → carrier
 
     inj* : Term Σ X → carrier
-    inj* = Term-rec inj algebra
+    inj* = Term-iter inj algebra
 
     eval : ⟦ Σ ⟧ (X ⊎ carrier) → carrier
     eval (s , α) = algebra s (Coprod-rec inj (idf _) ∘ α)
 
     eval* : Term Σ (X ⊎ carrier) → carrier
-    eval* = Term-rec (Coprod-rec inj (idf _)) algebra
+    eval* = Term-iter (Coprod-rec inj (idf _)) algebra
 
   record OpenAlgebra  (X : 𝓦 ̇) : (𝓤 ⊔ 𝓥 ⊔ 𝓦) ⁺ ̇ where
     field

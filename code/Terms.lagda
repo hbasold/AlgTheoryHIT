@@ -9,23 +9,31 @@ module Terms where
 
 open import Universes
 open import lib.Basics renaming (_⊔_ to +)
+\end{code}
 
+\begin{code}
 record Signature (𝓤 𝓥) : (𝓤 ⊔ 𝓥) ⁺ ̇ where
   field
     sym  : 𝓤 ̇
     ar   : sym → 𝓥 ̇
 open Signature public
+\end{code}
 
+\begin{code}
 ⟦_⟧ : ∀ {𝓤 𝓥 𝓦} → (P : Signature 𝓤 𝓥) → 𝓦 ̇ → 𝓤 ⊔ 𝓥 ⊔ 𝓦 ̇
 ⟦ P ⟧ X = Σ (sym P) λ s → ar P s → X
 
 ⟪_⟫ : ∀ {𝓤 𝓥 𝓦} (S : Signature 𝓤 𝓥) {X : 𝓦 ̇} {𝓣} → (Q : X → 𝓣 ̇) → (⟦ S ⟧ X → 𝓥 ⊔ 𝓣 ̇)
 ⟪ P ⟫ Q (s , α) = (x : ar P s) → Q (α x)
+\end{code}
 
+\begin{code}
 data Term {𝓤 𝓥 𝓦} (P : Signature 𝓤 𝓥) (V : 𝓦 ̇) : 𝓤 ⊔ 𝓥 ⊔ 𝓦 ̇ where
   var   : V → Term P V
   node  : (s : sym P) (α : ar P s → Term P V) → Term P V
+\end{code}
 
+\begin{code}
 module TermElim {𝓤 𝓥 𝓦} {P : Signature 𝓤 𝓥} {V : 𝓦 ̇} {𝓣} {Q : Term P V → 𝓣 ̇}
   (var*   : (v : V) → Q (var v))
   (node*  : (s : sym P) (α : ar P s → Term P V) (γ : (x : ar P s) → Q (α x)) → Q (node s α))
@@ -45,20 +53,26 @@ module TermRec {𝓤 𝓥 𝓦} {P : Signature 𝓤 𝓥} {V : 𝓦 ̇} {𝓣} {
   f : Term P V →  X
   f = Term-elim var* (λ s _ γ → node* s γ)
 
-Term-rec = TermRec.f
+Term-iter = TermRec.f
+\end{code}
 
+\begin{code}
 Term-map : ∀ {𝓤 𝓥 𝓦 𝓦'} {Σ : Signature 𝓤 𝓥} {V : 𝓦 ̇} {U : 𝓦' ̇} → (V → U) → Term Σ V → Term Σ U
-Term-map f = Term-rec (var ∘ f) node
+Term-map f = Term-iter (var ∘ f) node
 
 Term-lift : ∀ {𝓤 𝓥 𝓦 𝓦'} {Σ : Signature 𝓤 𝓥} {V : 𝓦 ̇} (P : V → 𝓦' ̇) → Term Σ V → 𝓥 ⊔ 𝓦' ̇
 Term-lift {_} {𝓥} {Σ = Σ} P
-  = Term-rec (λ x → _↑ {_} {𝓥} (P x)) (λ s α → ∀ (k : ar Σ s) → α k)
+  = Term-iter (λ x → _↑ {_} {𝓥} (P x)) (λ s α → ∀ (k : ar Σ s) → α k)
+\end{code}
 
+\begin{code}
 data TermP {𝓤 𝓥 𝓦 𝓣} (Σ : Signature 𝓤 𝓥) {X : 𝓦 ̇} (P : X → 𝓣 ̇) :
      Term Σ X → (𝓤 ⊔ 𝓥 ⊔ 𝓦 ⊔ 𝓣) ⁺ ̇ where
   var-case   : {x : X} → P x                                                  → TermP Σ P (var x)
   node-case  : (s : sym Σ) (α : ar Σ s → Term Σ X) → (∀ x → TermP Σ P (α x))  → TermP Σ P (node s α)
+\end{code}
 
+\begin{code}
 module TermPRec {𝓤 𝓥 𝓦} {Σ : Signature 𝓤 𝓥} {X : 𝓦 ̇} {𝓣 𝓣'} {P : X → 𝓣 ̇} {U : Term Σ X → 𝓣' ̇}
   (var-case*   : ∀ {x} → P x → U (var x))
   (node-case*  : ∀ s α → (∀ x → U (α x)) → U (node s α))
@@ -69,5 +83,4 @@ module TermPRec {𝓤 𝓥 𝓦} {Σ : Signature 𝓤 𝓥} {X : 𝓦 ̇} {𝓣 
   f (node-case s α p) = node-case* s α λ x → f (p x)
 
 TermP-rec = TermPRec.f
-
 \end{code}
