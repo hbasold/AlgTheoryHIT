@@ -160,7 +160,7 @@ record type.
 \AgdaPrimitive{𝓤₀}\<%
 \end{code}
 Note that the requirement that the variable type \AgdaBound{X} is in a fixed
-universe \AgdaBound{𝓦}, will also fix the universe in which the algebras for
+universe \UZ, will also fix the universe in which the algebras for
 a theory live.
 This is, however, not a severe constraint, as the induction principle still
 allows for large elimination.
@@ -172,7 +172,13 @@ scheme for an algebra of \AgdaBound{T} is.
 Algebras are given in two steps: First, we define pre-algebras that do not have
 to fulfil the equations of the theory, but only are an algebra for the functor
 induced by the signature Σ.
+The fact that the carrier of a pre-algebra is a set (in the sense of homotopy
+type theory) is technical necessity, which we would like to lift in the future.
 Note that this pre-algebra immediately extends to all terms by freeness.
+An actual algebra for T is then a pre-algebra that fulfils also the equations
+required by the theory.
+This idea is formalised in the following two record types.
+\newpage
 \begin{code}%
 \>[0][@{}l@{\AgdaIndent{1}}]%
 \>[2]\AgdaKeyword{record}\AgdaSpace{}%
@@ -233,11 +239,10 @@ Note that this pre-algebra immediately extends to all terms by freeness.
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{x}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaField{algebra}\<%
-\end{code}
-An actual algebra for T is then a pre-algebra whose carrier is a set (in the
-sense of homotopy type theory) and that fulfils also the equations required by
-the theory.
-\begin{code}%
+\\%
+%
+\\[\AgdaEmptyExtraSkip]%
+%
 \>[0][@{}l@{\AgdaIndent{1}}]%
 \>[2]\AgdaKeyword{record}\AgdaSpace{}%
 \AgdaRecord{Algebra}\AgdaSpace{}%
