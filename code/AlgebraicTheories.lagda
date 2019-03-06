@@ -26,7 +26,11 @@ and AlgTheory would be in the total universe Uω.
 record AlgTheory (𝓤 𝓥 𝓦) : (𝓤 ⊔ 𝓥 ⊔ 𝓦) ⁺ ̇ where
   field
     sig  : Signature 𝓤 𝓥
+    -- Note: This will introduce an inconsistency
     eqs  : ∀ {X : 𝓦 ̇} → Rel (Term sig X) 𝓤₀
+    -- The following is the correct one, with the idea that an algebra can
+    -- bump up the universe to 𝓦 but not below the universes of the signature.
+    -- eqs  : ∀ {X : 𝓤 ⊔ 𝓥 ⊔ 𝓦 ̇} → Rel (Term sig X) 𝓤₀
     -- The following is an internalisation of parametricity. However, we
     -- don't need it for now.
     -- eqs-nat : ∀ {𝓦 𝓦'} {X : 𝓦 ̇} {Y : 𝓦' ̇} (f : X → Y) →
@@ -83,7 +87,9 @@ equations can involve complex terms, cf. AlgTheory.
 \begin{code}
   record PreAlgebra : (𝓤 ⊔ 𝓥 ⊔ 𝓦) ⁺ ̇ where
     field
-      carrier      : 𝓦 ̇
+      carrier  : 𝓦 ̇
+      -- carrier  : 𝓤 ⊔ 𝓥 ⊔ 𝓦 ̇
+      carrier-set  : is-set carrier
       algebra  : (s : |Σ|) (α : ar Σ s → carrier) → carrier
 
     algebra* : Term Σ carrier → carrier
@@ -92,14 +98,18 @@ equations can involve complex terms, cf. AlgTheory.
 \end{code}
 
 \begin{code}
+  record IsAlgebra (𝓐 : PreAlgebra) : (𝓤 ⊔ 𝓥 ⊔ 𝓦) ⁺ ̇ where
+    open PreAlgebra 𝓐
+    field
+      resp-eq      : ∀ {t u : Term Σ carrier} →
+                     eqs t u → algebra* t == algebra* u
+
   record Algebra : (𝓤 ⊔ 𝓥 ⊔ 𝓦) ⁺ ̇ where
     field
       pre-algebra  : PreAlgebra
+      is-algebra   : IsAlgebra pre-algebra
     open PreAlgebra pre-algebra public
-    field
-      carrier-set  : is-set carrier
-      resp-eq      : ∀ {t u : Term Σ carrier} →
-                     eqs t u → algebra* t == algebra* u
+    open IsAlgebra is-algebra public
 
 \end{code}
 
@@ -137,30 +147,38 @@ predicate the preservation of the identities of an algebraic theory.
     ind* : ∀ {t : Term Σ A} → TermP Σ predicate t → predicate* t
     ind* = TermP-rec (idf _) λ s α γ → ind s (algebra* ∘ α) γ
 
+  record IsInductiveProp {𝓐 : PreAlgebra} (isAlg : IsAlgebra 𝓐)
+                         {𝓣} (𝓘 : PreInductive 𝓐 𝓣)
+                         : (𝓤 ⊔ 𝓥 ⊔ 𝓦 ⊔ 𝓣) ⁺ ̇ where
+    open PreAlgebra 𝓐 renaming (carrier to X; algebra to a)
+    open IsAlgebra isAlg
+    open PreInductive 𝓘
+    field
+      predicate-set : ∀ x → is-set (predicate x)
+      ind-resp-eq : ∀{t u} (r : eqs t u)
+        → (pt : TermP Σ predicate t) (pu : TermP Σ predicate u)
+        → ind* pt == ind* pu [ predicate ↓ resp-eq r ]
+
   record InductiveProp  (𝓐 : Algebra) (𝓣) : (𝓤 ⊔ 𝓥 ⊔ 𝓦 ⊔ 𝓣) ⁺ ̇ where
     constructor ind-hyp
     open Algebra 𝓐 renaming (carrier to X; algebra to a)
     field
-      pre-inductive : PreInductive pre-algebra 𝓣
-    open PreInductive pre-inductive public
-    -- field
-    --   predicate-prop : ∀ x → is-prop (predicate x)
-    field
-      ind-resp-eq : ∀{t u} (r : eqs t u)
-        → (pt : TermP Σ predicate t) (pu : TermP Σ predicate u)
-        → ind* pt == ind* pu [ predicate ↓ resp-eq r ]
+      pre-inductive  : PreInductive pre-algebra 𝓣
+      is-inductive   : IsInductiveProp is-algebra pre-inductive
+    open IsInductiveProp is-inductive public
 \end{code}
 
 
 We can also consider open T-algebras A over a set X of variables.
 These are algebras that additionally have an injection X → A.
 \begin{code}
-  record IsOpenPreAlgebra  (𝓐 : PreAlgebra) (X : 𝓦 ̇) : (𝓤 ⊔ 𝓥 ⊔ 𝓦) ⁺ ̇ where
-    open PreAlgebra 𝓐
+  record OpenPreAlgebra (X : 𝓦 ̇) : (𝓤 ⊔ 𝓥 ⊔ 𝓦) ⁺ ̇ where
+    field
+      pre-algebra : PreAlgebra
+    open PreAlgebra pre-algebra public
     field
       inj : X → carrier
 
-    inj* : Term Σ X → carrier
     inj* = Term-iter inj algebra
 
     eval : ⟦ Σ ⟧ (X ⊎ carrier) → carrier
@@ -168,43 +186,45 @@ These are algebras that additionally have an injection X → A.
 
     eval* : Term Σ (X ⊎ carrier) → carrier
     eval* = Term-iter (Coprod-rec inj (idf _)) algebra
+\end{code}
 
-  record OpenAlgebra  (X : 𝓦 ̇) : (𝓤 ⊔ 𝓥 ⊔ 𝓦) ⁺ ̇ where
+\begin{code}
+  record OpenAlgebra (X : 𝓦 ̇) : (𝓤 ⊔ 𝓥 ⊔ 𝓦) ⁺ ̇ where
     field
-      alg : Algebra
-    open Algebra alg public
+      open-pre-algebra : OpenPreAlgebra X
+    open OpenPreAlgebra open-pre-algebra public
     field
-      is-open : IsOpenPreAlgebra pre-algebra X
-    open IsOpenPreAlgebra is-open public
-    field
-      inj-resp-eq : ∀ {t u : Term Σ (X ⊎ carrier)} → eqs t u → eval* t == eval* u
+      is-algebra : IsAlgebra pre-algebra
+    open IsAlgebra is-algebra public
+
+  algebra : ∀ {X} → OpenAlgebra X → Algebra
+  algebra 𝓐 = record
+    { pre-algebra = OpenAlgebra.pre-algebra 𝓐
+    ; is-algebra = OpenAlgebra.is-algebra 𝓐
+    }
 \end{code}
 
 Open algebras may also come with an induction principle.
 \begin{code}
-  record PreOpenInductive (𝓐 : PreAlgebra) (𝓣) (X : 𝓦 ̇)
+  record OpenPreInductive {X : 𝓦 ̇} (𝓐 : OpenPreAlgebra X) (𝓣)
          : (𝓤 ⊔ 𝓥 ⊔ 𝓦 ⊔ 𝓣) ⁺ ̇ where
-    open PreAlgebra 𝓐 renaming (carrier to A; algebra to a)
+    open OpenPreAlgebra 𝓐 renaming (carrier to A; algebra to a)
     field
-      pre-inductive : PreInductive 𝓐 𝓣
-      is-open : IsOpenPreAlgebra 𝓐 X
+      pre-inductive : PreInductive pre-algebra 𝓣
     open PreInductive pre-inductive public
-    open IsOpenPreAlgebra is-open
-
-    -- predicate* : Term Σ X → 𝓣 ̇
-    -- predicate* = predicate ∘ algebra* ∘ Term-map inj
-
-    -- ind* : (∀ x → predicate (inj x)) → ∀ (t : Term Σ X) → predicate* t
-    -- ind* p = Term-elim p λ s α → ind s (algebra* ∘ Term-map inj ∘ α)
-
-  record OpenInductiveProp  (𝓐 : Algebra) (𝓣) (X : 𝓦 ̇) : (𝓤 ⊔ 𝓥 ⊔ 𝓦 ⊔ 𝓣) ⁺ ̇ where
-    constructor ind-hyp
-    open Algebra 𝓐 renaming (carrier to A; algebra to a)
     field
-      pre-open-inductive : PreOpenInductive pre-algebra 𝓣 X
-    open PreOpenInductive pre-open-inductive public
+      base  : ∀ x → predicate (inj x)
+
+  record OpenInductiveProp  {X : 𝓦 ̇} (𝓐 : OpenAlgebra X) (𝓣) : (𝓤 ⊔ 𝓥 ⊔ 𝓦 ⊔ 𝓣) ⁺ ̇ where
+    open OpenAlgebra 𝓐 renaming (open-pre-algebra to 𝓐⁻; carrier to A; algebra to a)
     field
-      predicate-prop : ∀ x → is-prop (predicate x)
+      open-pre-inductive : OpenPreInductive 𝓐⁻ 𝓣
+    open OpenPreInductive open-pre-inductive public
+    field
+      is-inductive : IsInductiveProp is-algebra pre-inductive
+
+    -- field
+    --   predicate-prop : ∀ x → is-prop (predicate x)
 \end{code}
 
 Finally, we can also define homomorphisms and isomorphisms of algebras, initial algebras,

@@ -115,13 +115,13 @@ We pack the signature and equations into an algebraic theory.
 Given this theory, we can generate the free group as free algebra over the
 group theory 𝓖.
 \begin{code}
-FreeGroup : Algebra 𝓖
-FreeGroup = FreeAlg
+InitialGroup : Algebra 𝓖
+InitialGroup = InitialAlgebra
 
-FreeGroup-Initial : IsInitial FreeGroup
-FreeGroup-Initial = FreeAlg-Initial
+InitialGroup-Initial : IsInitial InitialGroup
+InitialGroup-Initial = FreeAlg-Initial
 
-open Algebra FreeGroup renaming (carrier to G; algebra to a; algebra* to a*)
+open Algebra InitialGroup renaming (carrier to G; algebra to a; algebra* to a*)
 \end{code}
 
 Let us introduce some notation for the unit, inverse and multiplication in the
@@ -211,19 +211,19 @@ b = λ s α → tt
 TrivGroup : Algebra 𝓖
 TrivGroup = record
   { pre-algebra = record
-    { carrier = ⊤
-    ; algebra = b
+    { carrier      = ⊤
+    ; carrier-set  = Unit-level
+    ; algebra      = b
     }
-  ; carrier-set = Unit-level
-  ; resp-eq = λ x → idp
+  ; is-algebra = record { resp-eq = λ x → idp }
   }
 \end{code}
 
 From initiality, we obtain a homomorphism from the free group G into the
 trivial group.
 \begin{code}
-Free→Triv : Homomorphism FreeGroup TrivGroup
-Free→Triv = FreeHom TrivGroup
+Initial→Triv : Homomorphism InitialGroup TrivGroup
+Initial→Triv = InitialHom TrivGroup
 \end{code}
 
 In the other direction, we map the single point to the unit in the free
@@ -246,8 +246,8 @@ h-resp mul α =
   a mul (fmap2 e* e*)  =⟨ ap (a mul) (! (Fin-map-unique _)) ⟩
   a mul (h ∘ α)        =∎
 
-Triv→Free : Homomorphism TrivGroup FreeGroup
-Triv→Free = record
+Triv→Initial : Homomorphism TrivGroup InitialGroup
+Triv→Initial = record
   { map = h
   ; resp-ops = h-resp
   }
@@ -259,22 +259,22 @@ and the trivial group, it remains to show that these are inverses.
 This follows the usual reasoning by appealing to uniqueness of homomorphism
 out of initial objects.
 \begin{code}
-InitialIsTrivial : FreeGroup ≅ TrivGroup
+InitialIsTrivial : InitialGroup ≅ TrivGroup
 InitialIsTrivial = record
-  { from = Free→Triv
-  ; to = Triv→Free
+  { from = Initial→Triv
+  ; to = Triv→Initial
   ; inv₁ = FunextNonDep.λ=-nondep (λ x → idp)
   ; inv₂ = lem
   }
   where
     !G : G → G
-    !G = Homomorphism.map (FreeHom FreeGroup)
+    !G = Homomorphism.map (InitialHom InitialGroup)
 
     !⊤ : G → ⊤
-    !⊤ = FreeAlgebra-iter TrivGroup
+    !⊤ = InitialAlgebra-iter TrivGroup
 
     lem₁ : idf G == !G
-    lem₁ = IsInitial.!-unique FreeAlg-Initial (id-hom FreeGroup)
+    lem₁ = IsInitial.!-unique FreeAlg-Initial (id-hom InitialGroup)
 
     lem₂ : (s : GroupSym) (α : group-ar s → G) →
            h (!⊤ (a s α)) == a s ((h ∘ !⊤) ∘ α)
@@ -284,7 +284,7 @@ InitialIsTrivial = record
       a s (h ∘ !⊤ ∘ α)    =⟨ ap (a s) idp ⟩
       a s ((h ∘ !⊤) ∘ α)  =∎
 
-    h∘!⊤-hom : Homomorphism FreeGroup FreeGroup
+    h∘!⊤-hom : Homomorphism InitialGroup InitialGroup
     h∘!⊤-hom = record
       { map = h ∘ !⊤
       ; resp-ops = lem₂
@@ -292,7 +292,7 @@ InitialIsTrivial = record
 
     lem : h ∘ !⊤ == idf G
     lem =
-      h ∘ !⊤ =⟨ IsInitial.!-unique FreeGroup-Initial h∘!⊤-hom ⟩
+      h ∘ !⊤ =⟨ IsInitial.!-unique InitialGroup-Initial h∘!⊤-hom ⟩
       !G =⟨ ! lem₁ ⟩
       idf G =∎
 \end{code}
