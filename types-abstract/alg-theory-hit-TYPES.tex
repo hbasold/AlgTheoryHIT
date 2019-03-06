@@ -125,7 +125,7 @@ An \emph{algebraic theory} is given by a signature and a set of equations
 between terms over that signature.
 These equations may have free variables but may not use other properties than
 equality on the variables.
-Thus, we represent equations as parametric
+Thus, we represent equations as parametric binary
 relations~\cite{Hermida14:LogicalRelationsParametricity}, as in the following
 record type.
 \begin{code}%
@@ -156,8 +156,7 @@ record type.
 \AgdaFunction{Rel}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaDatatype{Term}\AgdaSpace{}%
 \AgdaField{sig}\AgdaSpace{}%
-\AgdaBound{X}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaPrimitive{𝓤₀}\<%
+\AgdaBound{X}\AgdaSymbol{)}\<%
 \end{code}
 Note that the requirement that the variable type \AgdaBound{X} is in a fixed
 universe \UZ, will also fix the universe in which the algebras for
