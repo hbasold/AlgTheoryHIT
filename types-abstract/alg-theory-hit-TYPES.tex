@@ -86,8 +86,10 @@ This construction can be carried out by using higher inductive types, as we will
 now briefly show.
 
 We present some basic notions as Agda code.
-Here, and in what follows, \UZ{} and \UO{} denote the first and second type
-universe.
+In what follows, we will work in Martin-Löf type theory with two basic
+universes \UZ{}\ofT\UO{}.
+We will also require function extensionality, which can, however, be dropped
+if we restrict ourselves to finitary signature.
 The following record type defines a \emph{signature} (also polynomial or
 container) in Agda.
 \begin{code}%
