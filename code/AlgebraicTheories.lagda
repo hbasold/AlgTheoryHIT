@@ -27,7 +27,7 @@ record AlgTheory (𝓤 𝓥 𝓦) : (𝓤 ⊔ 𝓥 ⊔ 𝓦) ⁺ ̇ where
   field
     sig  : Signature 𝓤 𝓥
     -- Note: This will introduce an inconsistency
-    eqs  : ∀ {X : 𝓦 ̇} → Rel (Term sig X) 𝓤₀
+    eqs  : ∀ {X : 𝓤 ⊔ 𝓥 ⊔ 𝓦 ̇} → Rel (Term sig X) 𝓤₀
     -- The following is the correct one, with the idea that an algebra can
     -- bump up the universe to 𝓦 but not below the universes of the signature.
     -- eqs  : ∀ {X : 𝓤 ⊔ 𝓥 ⊔ 𝓦 ̇} → Rel (Term sig X) 𝓤₀
@@ -87,8 +87,7 @@ equations can involve complex terms, cf. AlgTheory.
 \begin{code}
   record PreAlgebra : (𝓤 ⊔ 𝓥 ⊔ 𝓦) ⁺ ̇ where
     field
-      carrier  : 𝓦 ̇
-      -- carrier  : 𝓤 ⊔ 𝓥 ⊔ 𝓦 ̇
+      carrier  : 𝓤 ⊔ 𝓥 ⊔ 𝓦 ̇
       carrier-set  : is-set carrier
       algebra  : (s : |Σ|) (α : ar Σ s → carrier) → carrier
 

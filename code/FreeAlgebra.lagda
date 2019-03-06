@@ -17,7 +17,7 @@ open import AlgebraicTheories
 \begin{code}
 module _ where
   postulate -- HIT type
-    FreeAlgebra : ∀ {𝓤 𝓥 𝓦} (T : AlgTheory 𝓤 𝓥 𝓦) (X : 𝓦 ̇) → 𝓦 ̇
+    FreeAlgebra : ∀ {𝓤 𝓥 𝓦} (T : AlgTheory 𝓤 𝓥 𝓦) (X : 𝓦 ̇) → (𝓤 ⊔ 𝓥 ⊔ 𝓦) ̇
 
   module _ {𝓤 𝓥 𝓦} {T : AlgTheory 𝓤 𝓥 𝓦} where
     open AlgTheory T renaming (sig to Σ)
@@ -86,7 +86,6 @@ free algebras into arbitrary sets.
 
     postulate -- HIT induction
       f : Π (FreeAlgebra T X) P
-       -- Not really useful because we eliminate into a proposition.
       leaf-β : ∀ x    → f (leaf' x)    ↦ base x
       node-β : ∀ s α  → f (node' s α)  ↦ ind s α (f ∘ α)
     {-# REWRITE leaf-β #-}
@@ -168,11 +167,12 @@ needs induction on lists.
             renaming (carrier to B; algebra to b; resp-eq to b-resp-eq;
               carrier-set to B-is-set)
           open OpenAlgebra (FreeAlg {T = T} ε)
-            renaming (carrier to T*; algebra to ω; algebra* to ω*)
+            renaming (carrier to T*; algebra to ω; algebra* to ω*; pre-algebra to T*⁻)
 
           b* : T* → B
           b* = InitialAlgebra-iter 𝓑
 
+          P : (x : FreeAlgebra T (⊥ ↑)) → 𝓤 ⊔ 𝓥 ⊔ 𝓦 ̇
           P = λ x → h x == b* x
 
           ind : (s : sym Σ)
@@ -185,6 +185,7 @@ needs induction on lists.
             b s (h ∘ α)                     =⟨ ap (b s) (FunextNonDep.λ=-nondep P) ⟩
             InitialAlgebra-iter 𝓑 (ω s α)  =∎
 
+          PE : PreInductive T T*⁻ (𝓤 ⊔ 𝓥 ⊔ 𝓦)
           PE = pre-ind P ind
 
           open PreInductive PE
@@ -198,11 +199,11 @@ needs induction on lists.
           ind-resp-eq {t} {u} t=u pt pu =
             prop-has-all-paths-↓ {{ P-is-prop (ω* u) }}
 
-          Ind : OpenInductiveProp T (FreeAlg ε) 𝓦
+          Ind : OpenInductiveProp T (FreeAlg ε) (𝓤 ⊔ 𝓥 ⊔ 𝓦)
           Ind = record
                 { open-pre-inductive = record
                   { pre-inductive = PE
-                  ; base = λ x → ⊥-elim {𝓦} {λ y → P (inj (y ↥))} (x ↧)
+                  ; base = λ x → ⊥-elim {_} {λ y → P (inj (y ↥))} (x ↧)
                   }
                 ; is-inductive = record
                   { predicate-set = λ x → prop-is-set (P-is-prop x)
