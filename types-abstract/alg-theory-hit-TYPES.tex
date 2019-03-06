@@ -25,9 +25,10 @@
 \DeclareDocumentCommand{\ofT}{}{\AgdaSpace{}\AgdaSymbol{:}\AgdaSpace{}}
 \DeclareDocumentCommand{\toA}{}{\AgdaSpace{}\AgdaSymbol{$\to$}\AgdaSpace{}}
 \DeclareDocumentCommand{\U}{m}{\AgdaBound{$\mathcal{#1}$}}
+\DeclareDocumentCommand{\UZ}{m}{\AgdaPrimitive{$\mathcal{U}_{0}$}}
+\DeclareDocumentCommand{\UO}{m}{\AgdaPrimitive{$\mathcal{U}_{1}$}}
 \DeclareDocumentCommand{\Sig}{m m}{%
-  \AgdaRecord{Signature}\AgdaSpace{}%
-  \U{#1}\AgdaSpace{}\U{#2}%
+  \AgdaRecord{Signature}%
 }
 \DeclareDocumentCommand{\Term}{m m}{%
   \AgdaDatatype{Term}\AgdaSpace{}%
@@ -85,21 +86,13 @@ This construction can be carried out by using higher inductive types, as we will
 now briefly show.
 
 We present some basic notions as Agda code.
-Here, and in what follows, \U{U}, \U{V} and \U{W}
-denote universes, \AgdaPrimitive{⊔} is the least upper bound of universes,
-and \U{U}\AgdaPrimitive{⁺} denotes the next universe above \U{U}.
+Here, and in what follows, \UZ{} and \UO{} denote the first and second type
+universe.
 The following record type defines a \emph{signature} (also polynomial or
 container) in Agda.
 \begin{code}%
 \>[0]\AgdaKeyword{record}\AgdaSpace{}%
-\AgdaRecord{Signature}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{𝓤}\AgdaSpace{}%
-\AgdaBound{𝓥}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{𝓤}\AgdaSpace{}%
-\AgdaOperator{\AgdaPrimitive{⊔}}\AgdaSpace{}%
-\AgdaBound{𝓥}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaPrimitive{⁺}}\AgdaSpace{}%
+\AgdaRecord{Signature} \ofT \UO%
 \AgdaOperator{\AgdaFunction{̇}}\AgdaSpace{}%
 \AgdaKeyword{where}\<%
 \\
@@ -109,7 +102,7 @@ container) in Agda.
 \>[2][@{}l@{\AgdaIndent{0}}]%
 \>[4]\AgdaField{sym}%
 \>[9]\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaBound{𝓤}\AgdaSpace{}%
+\UZ\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{̇}}\<%
 \\
 %
@@ -117,7 +110,7 @@ container) in Agda.
 \>[9]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaField{sym}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
-\AgdaBound{𝓥}\AgdaSpace{}%
+\UZ\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{̇}}\<%
 % \\
 % \>[0]\AgdaKeyword{open}\AgdaSpace{}%
@@ -138,16 +131,8 @@ record type.
 \begin{code}%
 \>[0]\AgdaKeyword{record}\AgdaSpace{}%
 \AgdaRecord{AlgTheory}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{𝓤}\AgdaSpace{}%
-\AgdaBound{𝓥}\AgdaSpace{}%
-\AgdaBound{𝓦}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{𝓤}\AgdaSpace{}%
-\AgdaOperator{\AgdaPrimitive{⊔}}\AgdaSpace{}%
-\AgdaBound{𝓥}\AgdaSpace{}%
-\AgdaOperator{\AgdaPrimitive{⊔}}\AgdaSpace{}%
-\AgdaBound{𝓦}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaPrimitive{⁺}}\AgdaSpace{}%
+\UO%
 \AgdaOperator{\AgdaFunction{̇}}\AgdaSpace{}%
 \AgdaKeyword{where}\<%
 \\
@@ -157,9 +142,7 @@ record type.
 \>[2][@{}l@{\AgdaIndent{0}}]%
 \>[4]\AgdaField{sig}%
 \>[9]\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaRecord{Signature}\AgdaSpace{}%
-\AgdaBound{𝓤}\AgdaSpace{}%
-\AgdaBound{𝓥}\<%
+\AgdaRecord{Signature}\<%
 \\
 %
 \>[4]\AgdaField{eqs}%
@@ -167,7 +150,7 @@ record type.
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{X}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
-\AgdaBound{𝓦}\AgdaSpace{}%
+\UZ\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{̇}}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaFunction{Rel}\AgdaSpace{}%
@@ -182,14 +165,8 @@ a theory live.
 This is, however, not a severe constraint, as the induction principle still
 allows for large elimination.
 
-We fix universes \U{U}, \U{V} and \U{W}.
 Given an algebraic theory
-\AgdaBound{T}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaRecord{AlgTheory}\AgdaSpace{}%
-\AgdaBound{𝓤}\AgdaSpace{}%
-\AgdaBound{𝓥}\AgdaSpace{}%
-\AgdaBound{𝓦}
+\AgdaBound{T} \ofT \AgdaRecord{AlgTheory}
 over a signature \AgdaBound{Σ}, we can define what an algebra and an induction
 scheme for an algebra of \AgdaBound{T} is.
 Algebras are given in two steps: First, we define pre-algebras that do not have
@@ -201,12 +178,7 @@ Note that this pre-algebra immediately extends to all terms by freeness.
 \>[2]\AgdaKeyword{record}\AgdaSpace{}%
 \AgdaRecord{PreAlgebra}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{𝓤}\AgdaSpace{}%
-\AgdaOperator{\AgdaPrimitive{⊔}}\AgdaSpace{}%
-\AgdaBound{𝓥}\AgdaSpace{}%
-\AgdaOperator{\AgdaPrimitive{⊔}}\AgdaSpace{}%
-\AgdaBound{𝓦}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaPrimitive{⁺}}\AgdaSpace{}%
+\UO
 \AgdaOperator{\AgdaFunction{̇}}\AgdaSpace{}%
 \AgdaKeyword{where}\<%
 \\
@@ -216,7 +188,7 @@ Note that this pre-algebra immediately extends to all terms by freeness.
 \>[4][@{}l@{\AgdaIndent{0}}]%
 \>[6]\AgdaField{carrier}%
 \>[19]\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaBound{𝓦}\AgdaSpace{}%
+\UZ\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{̇}}\<%
 \\
 %
@@ -264,12 +236,7 @@ the theory.
 \>[2]\AgdaKeyword{record}\AgdaSpace{}%
 \AgdaRecord{Algebra}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{𝓤}\AgdaSpace{}%
-\AgdaOperator{\AgdaPrimitive{⊔}}\AgdaSpace{}%
-\AgdaBound{𝓥}\AgdaSpace{}%
-\AgdaOperator{\AgdaPrimitive{⊔}}\AgdaSpace{}%
-\AgdaBound{𝓦}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaPrimitive{⁺}}\AgdaSpace{}%
+\UO
 \AgdaOperator{\AgdaFunction{̇}}\AgdaSpace{}%
 \AgdaKeyword{where}\<%
 \\
@@ -342,18 +309,11 @@ cf. \AgdaFunction{algebra*} above.
 % \>[2][@{}l@{\AgdaIndent{0}}]%
 \>[6]\AgdaPostulate{FreeAlgebra}\AgdaSpace{}%
 \>[13]\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{𝓤}\AgdaSpace{}%
-\AgdaBound{𝓥}\AgdaSpace{}%
-\AgdaBound{𝓦}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{T}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
-\AgdaRecord{AlgTheory}\AgdaSpace{}%
-\AgdaBound{𝓤}\AgdaSpace{}%
-\AgdaBound{𝓥}\AgdaSpace{}%
-\AgdaBound{𝓦}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaRecord{AlgTheory}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
-\AgdaBound{𝓦}\AgdaSpace{}%
+\UZ\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{̇}}\<%
 \\
 %
